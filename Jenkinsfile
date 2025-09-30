@@ -20,15 +20,17 @@ pipeline {
             }
         }
         stage('test pipeline'){
-            sh '''
-                if [[ -f ./build/index.html ]]; then
-                    echo "File Exists"
-                    exit 0
-                else
-                    echo "file missing"
-                    exit 1
-                fi
-            '''
+            steps {
+                sh '''
+                    if [[ -f ./build/index.html ]]; then
+                        echo "File Exists"
+                        exit 0
+                    else
+                        echo "file missing"
+                        exit 1
+                    fi
+                '''
+            }
         }
     }
 }
