@@ -22,7 +22,9 @@ pipeline {
         stage('test pipeline'){
             steps {
                 sh '''
-                    [ -f ./build/index.html ] || { echo "file missing"; exit 1; } '''
+                    [ -f ./build/index.html ] || { echo "file missing"; exit 1; }
+                    echo $? 
+                '''
             }
         }
     }
