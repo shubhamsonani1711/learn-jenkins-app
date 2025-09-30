@@ -16,8 +16,8 @@ pipeline {
                     npm --version
                     npm ci
                     npm run build
-                    ls -la
                     npm test
+                    ls -la
                 '''
             }
         }
