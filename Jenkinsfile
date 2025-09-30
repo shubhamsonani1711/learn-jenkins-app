@@ -24,12 +24,10 @@ pipeline {
             }
             steps {
                 sh '''
-                    [ -f ./build/index.html ] || { echo "file missing"; exit 1; }
-                    echo $? && echo "test passed" || echo "test failed"
-                    node --version
-                    npm test -- --watchAll=false > test_result.txt 2>&1
-                    [ -f ./test-results/junit.xml ] || { echo "file missing"; exit 1; }
-                    echo $? && echo "test passed" || echo "test failed"
+                    test -f build/index.html || { echo "build/index.html missing"; exit 1; }
+                    npm test -- --watchAll=false > test_result.txt 2>&1 || { echo "tests failed"; exit 1; }
+                    test -f test-results/junit.xml || { echo "test-results/junit.xml missing"; exit 1; }
+
                 '''
             }
         }
