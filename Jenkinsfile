@@ -1,14 +1,13 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:18-alpine'
+            reuseNode true
+        }
+    }
 
     stages {
         stage('Build') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true // agent and docker shares same folder.
-                }
-            }
             steps {
                 sh '''
                     ls -la
@@ -24,6 +23,7 @@ pipeline {
                 sh '''
                     [ -f ./build/index.html ] || { echo "file missing"; exit 1; }
                     echo $? && echo "test passed" || echo "test failed"
+                    node --version
                     npm test -- --watchAll
                     [ -f ./test-results/junit.xml ] || { echo "file missing"; exit 1; }
                     echo $? && echo "test passed" || echo "test failed"
