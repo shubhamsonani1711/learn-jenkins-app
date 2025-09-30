@@ -23,7 +23,10 @@ pipeline {
             steps {
                 sh '''
                     [ -f ./build/index.html ] || { echo "file missing"; exit 1; }
-                    echo $? 
+                    echo $? && echo "test passed" || echo "test failed"
+                    npm test -- --watchAll
+                    [ -f ./test-results/junit.xml ] || { echo "file missing"; exit 1; }
+                    echo $? && echo "test passed" || echo "test failed"
                 '''
             }
         }
