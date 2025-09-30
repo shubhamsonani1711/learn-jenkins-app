@@ -13,8 +13,8 @@ pipeline {
                     ls -la
                     node --version 
                     npm --version
-                    npm ci >> /dev/null
-                    npm run build
+                    npm ci > ./npm_ci.txt
+                    npm run build > ./npm_run_build.txt
                 '''
             }
         }
@@ -27,7 +27,7 @@ pipeline {
                     [ -f ./build/index.html ] || { echo "file missing"; exit 1; }
                     echo $? && echo "test passed" || echo "test failed"
                     node --version
-                    npm test -- --watchAll=false
+                    npm test -- --watchAll=false > test_result.txt
                     [ -f ./test-results/junit.xml ] || { echo "file missing"; exit 1; }
                     echo $? && echo "test passed" || echo "test failed"
                 '''
