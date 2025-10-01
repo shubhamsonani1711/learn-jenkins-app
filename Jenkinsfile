@@ -27,7 +27,7 @@ pipeline {
                 sh '''
                     test -f build/index.html || { echo "build/index.html missing"; exit 1; }
                     npm test -- --watchAll=false > test_result.txt 2>&1 || { echo "tests failed"; exit 1; }
-                    test -f test-results/junit.xml || { echo "test-results/junit.xml missing"; exit 1; }
+                    test -f jest-results/junit.xml || { echo "jest-results/junit.xml missing"; exit 1; }
 
                 '''
             }
