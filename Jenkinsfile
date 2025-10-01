@@ -7,7 +7,7 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
+        /*stage('Build') {
             steps {
                 sh '''
                     ls -la
@@ -17,7 +17,7 @@ pipeline {
                     npm run build > ./npm_run_build.txt 2>&1
                 '''
             }
-        }
+        }*/
         stage('test pipeline'){
             environment{
                 CI ='true'
@@ -28,6 +28,18 @@ pipeline {
                     npm test -- --watchAll=false > test_result.txt 2>&1 || { echo "tests failed"; exit 1; }
                     test -f test-results/junit.xml || { echo "test-results/junit.xml missing"; exit 1; }
 
+                '''
+            }
+        }
+        stage('test playwright'){
+            docker {
+                image 'mcr.microsoft.com/playwright:v1.55.0-mobile'
+            }
+            steps {
+                sh '''
+                    npm install -g serve
+                    serve -s build
+                    npx playwright test
                 '''
             }
         }
