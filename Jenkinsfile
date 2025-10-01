@@ -35,7 +35,7 @@ pipeline {
         stage('test playwright-E2E'){
             agent{
                 docker{
-                    image 'mcr.microsoft.com/playwright:v1.55.0-jammy'
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
                     reuseNode true
                 }
             }
