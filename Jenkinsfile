@@ -19,7 +19,7 @@ pipeline {
             }
         }*/
         stage('test pipeline'){
-            environment{
+            environment{ 
                 CI ='true'
             }
             steps {
@@ -31,9 +31,10 @@ pipeline {
                 '''
             }
         }
-        stage('test playwright'){
+        stage('test playwright-E2E'){
             docker {
                 image 'mcr.microsoft.com/playwright:v1.55.0-mobile'
+                reuseNode true
             }
             steps {
                 sh '''
