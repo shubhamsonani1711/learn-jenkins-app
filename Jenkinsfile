@@ -32,10 +32,13 @@ pipeline {
             }
         }
         stage('test playwright-E2E'){
-            docker {
-                image 'mcr.microsoft.com/playwright:v1.55.0-mobile'
-                reuseNode true
+            agent{
+                docker{
+                    image 'mcr.microsoft.com/playwright:v1.55.0-mobile'
+                    reuseNode true
+                }
             }
+        
             steps {
                 sh '''
                     npm install -g serve
