@@ -126,22 +126,7 @@ pipeline {
                 
             }
         }
-        stage('Prod Deploy') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                   npm install netlify-cli@20.1.1 1>/dev/null 2&>1
-                   ./node_modules/.bin/netlify --version
-                   ./node_modules/.bin/netlify status
-                   ./node_modules/.bin/netlify deploy --dir=build --prod
-                '''
-            }
-        }
+
         stage('Prod E2E') {
                     agent {
                         docker {
@@ -155,7 +140,12 @@ pipeline {
 
                     steps { // as we are testing against production build, we dont need serve package here.
                         sh '''
-                            npx playwright test  --reporter=html
+                        npm install netlify-cli@20.1.1 1>/dev/null 2&>1
+                        ./node_modules/.bin/netlify --version
+                        ./node_modules/.bin/netlify status
+                        ./node_modules/.bin/netlify deploy --dir=build --prod
+                        sleep 10
+                        npx playwright test  --reporter=html
                         '''
                     }
 
