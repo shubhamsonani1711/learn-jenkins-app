@@ -72,29 +72,6 @@ pipeline {
                 }
             }
         }
-        stage('Staging Deploy') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-            steps { // setting a declarative script so that we can capture URL and set it as env var
-                sh '''
-                    npm install node-jq 1>/dev/null 2&>1
-                    npm install netlify-cli@20.1.1 1>/dev/null 2&>1
-                   ./node_modules/.bin/netlify --version
-                   ./node_modules/.bin/netlify status
-                   ./node_modules/.bin/netlify deploy --dir=build --json > deploy.json
-                   # parsing from file
-                   ./node_modules/.bin/node-jq -r '.deploy_url' deploy.json
-                '''
-                script {
-                    env.CI_ENVIRONMENT_URL = sh(script:"./node_modules/.bin/node-jq -r '.deploy_url' deploy.json",returnStdout: true)
-                }
-            }
-            
-        }
         stage('Staging E2E test') {
                     agent {
                         docker {
@@ -102,13 +79,17 @@ pipeline {
                             reuseNode true
                         }
                     }
-                    environment{ //setting this env var here - as we dont want to conflict production build in build stage as it will get confused with URL and SITE ID
-                        CI_ENVIRONMENT_URL = "${env.CI_ENVIRONMENT_URL}"
-                    }
 
                     steps { // as we are testing against production build, we dont need serve package here.
                         sh '''
-                            npx playwright test  --reporter=html
+                        npm install node-jq 1>/dev/null 2&>1
+                        npm install netlify-cli@20.1.1 1>/dev/null 2&>1
+                        ./node_modules/.bin/netlify --version
+                        ./node_modules/.bin/netlify status
+                        ./node_modules/.bin/netlify deploy --dir=build --json > deploy.json
+                        # parsing from file and storing into variable
+                        CI_ENVIRONMENT_URL=$(./node_modules/.bin/node-jq -r '.deploy_url' deploy.json)
+                        npx playwright test  --reporter=html
                         '''
                     }
 
