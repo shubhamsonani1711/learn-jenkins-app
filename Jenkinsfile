@@ -87,7 +87,7 @@ pipeline {
                    ./node_modules/.bin/netlify status
                    ./node_modules/.bin/netlify deploy --dir=build --json > deploy.json
                    # parsing from file
-                   ./node_modules/.bin/node-jq -r '.deploy_url' deploy_output.json
+                   ./node_modules/.bin/node-jq -r '.deploy_url' deploy.json
                 '''
             }
         }
