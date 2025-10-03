@@ -84,8 +84,22 @@ pipeline {
                    npm install netlify-cli@20.1.1 1>/dev/null 2&>1
                    ./node_modules/.bin/netlify --version
                    ./node_modules/.bin/netlify status
-                   ./node_modules/.bin/netlify deploy --dir=build 
+                   
+                   # Install jq to parse JSON (alpine uses apk)
+                   apk add --no-cache jq >/dev/null
+
+                   # do the deploy and capture JSON to a file
+                   ./node_modules/.bin/netlify deploy --dir=build  --json > deploy.json
                 '''
+                // Parse the draft URL (preser SSL URL, fallback to plain)
+                def draftUrl = sh(
+                    script: "jq -r '.deploy_ssl_url // .deploy_url' deploy.json"
+                    returnStdout: true
+                ).trim()
+
+                echo "Draft URL: ${draftUrl}"
+                //make it available to later stages
+                env.CI_ENVIRONMENT_URL = draftUrl
             }
         }
         stage('Staging E2E test') {
@@ -96,7 +110,7 @@ pipeline {
                         }
                     }
                     environment{ //setting this env var here - as we dont want to conflict production build in build stage as it will get confused with URL and SITE ID
-                        CI_ENVIRONMENT_URL = 'https://candid-macaron-19413e.netlify.app'
+                        CI_ENVIRONMENT_URL = "${env.CI_ENVIRONMENT_URL}"
                     }
 
                     steps { // as we are testing against production build, we dont need serve package here.
