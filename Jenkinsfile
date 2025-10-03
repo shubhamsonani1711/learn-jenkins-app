@@ -38,7 +38,7 @@ pipeline {
                             #test -f build/index.html
                             npm test
                             npm install serve
-                            ls
+                            
                         '''
                     }
                     post {
