@@ -99,7 +99,7 @@ pipeline {
                     '''
                     // Parse the draft URL (preser SSL URL, fallback to plain)
                     def draftUrl = sh(
-                        script: "jq -r '.deploy_ssl_url // .deploy_url' deploy.json",
+                        script: ".ci-bin/jq -r '.deploy_ssl_url // .deploy_url' deploy.json",
                         returnStdout: true
                     ).trim()
 
