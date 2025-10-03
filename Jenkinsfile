@@ -72,7 +72,46 @@ pipeline {
                 }
             }
         }
-        stage('Deploy') {
+        stage('Staging Deploy') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                   npm install netlify-cli@20.1.1 1>/dev/null 2&>1
+                   ./node_modules/.bin/netlify --version
+                   ./node_modules/.bin/netlify status
+                   ./node_modules/.bin/netlify deploy --dir=build 
+                '''
+            }
+        }
+        stage('Staging E2E test') {
+                    agent {
+                        docker {
+                            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                            reuseNode true
+                        }
+                    }
+                    environment{ //setting this env var here - as we dont want to conflict production build in build stage as it will get confused with URL and SITE ID
+                        CI_ENVIRONMENT_URL = 'https://candid-macaron-19413e.netlify.app'
+                    }
+
+                    steps { // as we are testing against production build, we dont need serve package here.
+                        sh '''
+                            npx playwright test  --reporter=html
+                        '''
+                    }
+
+                    post {
+                        always {
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright E2E staging Report', reportTitles: '', useWrapperFileDirectly: true])
+                        }
+                    }
+                }
+        stage('Prod Deploy') {
             agent {
                 docker {
                     image 'node:18-alpine'
