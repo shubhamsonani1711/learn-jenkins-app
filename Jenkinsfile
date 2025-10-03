@@ -6,7 +6,7 @@ pipeline {
     }
 
     stages {
-        /*stage('Build') {
+        stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -22,7 +22,7 @@ pipeline {
                     npm run build > ./npm_run_build.txt 2>&1
                 '''
             }
-        }*/
+        }
         stage('Unit Tests') {
             agent {
                 docker {
