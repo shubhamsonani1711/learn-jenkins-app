@@ -79,27 +79,30 @@ pipeline {
                     reuseNode true
                 }
             }
-            steps {
-                sh '''
-                   npm install netlify-cli@20.1.1 1>/dev/null 2&>1
-                   ./node_modules/.bin/netlify --version
-                   ./node_modules/.bin/netlify status
+            steps { // setting a declarative script so that we can capture URL and set it as env var
+                script {
+                    sh '''
+                    set -e
+                    npm install netlify-cli@20.1.1 1>/dev/null 2&>1
+                    ./node_modules/.bin/netlify --version
+                    ./node_modules/.bin/netlify status
                    
-                   # Install jq to parse JSON (alpine uses apk)
-                   apk add --no-cache jq >/dev/null
+                    # Install jq to parse JSON (alpine uses apk)
+                    apk add --no-cache jq >/dev/null
 
-                   # do the deploy and capture JSON to a file
-                   ./node_modules/.bin/netlify deploy --dir=build  --json > deploy.json
-                '''
-                // Parse the draft URL (preser SSL URL, fallback to plain)
-                def draftUrl = sh(
-                    script: "jq -r '.deploy_ssl_url // .deploy_url' deploy.json",
-                    returnStdout: true
-                ).trim()
+                    # do the deploy and capture JSON to a file
+                    ./node_modules/.bin/netlify deploy --dir=build  --json > deploy.json
+                    '''
+                    // Parse the draft URL (preser SSL URL, fallback to plain)
+                    def draftUrl = sh(
+                        script: "jq -r '.deploy_ssl_url // .deploy_url' deploy.json",
+                        returnStdout: true
+                    ).trim()
 
-                echo "Draft URL: ${draftUrl}"
-                //make it available to later stages
-                env.CI_ENVIRONMENT_URL = draftUrl
+                    echo "Draft URL: ${draftUrl}"
+                    //make it available to later stages
+                    env.CI_ENVIRONMENT_URL = draftUrl
+                }
             }
         }
         stage('Staging E2E test') {
