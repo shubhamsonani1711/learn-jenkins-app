@@ -89,6 +89,9 @@ pipeline {
                    # parsing from file
                    ./node_modules/.bin/node-jq -r '.deploy_url' deploy.json
                 '''
+                script{
+                    env.CI_ENVIRONMENT_URL = sh(script:"./node_modules/.bin/node-jq -r '.deploy_url' deploy.json",returnStdout: true)
+                }
             }
         }
         stage('Staging E2E test') {
