@@ -88,7 +88,7 @@ pipeline {
                         ./node_modules/.bin/netlify status
                         ./node_modules/.bin/netlify deploy --dir=build --json > deploy.json
                         # parsing from file and storing into variable
-                        CI_ENVIRONMENT_URL=$(./node_modules/.bin/node-jq -r '.deploy_url' deploy.json)
+                        export CI_ENVIRONMENT_URL="$(./node_modules/.bin/node-jq -r '.deploy_url' deploy.json)"
                         npx playwright test  --reporter=html
                         '''
                     }
