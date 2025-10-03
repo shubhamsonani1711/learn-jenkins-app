@@ -80,33 +80,15 @@ pipeline {
                 }
             }
             steps { // setting a declarative script so that we can capture URL and set it as env var
-                script {
-                    sh '''
-                    set -e
+                sh '''
+                    npm install node-jq 1>/dev/null 2&>1
                     npm install netlify-cli@20.1.1 1>/dev/null 2&>1
-                    ./node_modules/.bin/netlify --version
-                    ./node_modules/.bin/netlify status
-                   
-                    # fetch portable jq (no root required)
-                    mkdir -p .ci-bin
-                    if [ ! -x .ci-bin/jq ]; then
-                        wget -q -O .ci-bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-                        chmod +x .ci-bin/jq
-                    fi
-
-                    # do the deploy and capture JSON to a file
-                    ./node_modules/.bin/netlify deploy --dir=build  --json > deploy.json
-                    '''
-                    // Parse the draft URL (preser SSL URL, fallback to plain)
-                    def draftUrl = sh(
-                        script: ".ci-bin/jq -r '.deploy_ssl_url // .deploy_url' deploy.json",
-                        returnStdout: true
-                    ).trim()
-
-                    echo "Draft URL: ${draftUrl}"
-                    //make it available to later stages
-                    env.CI_ENVIRONMENT_URL = draftUrl
-                }
+                   ./node_modules/.bin/netlify --version
+                   ./node_modules/.bin/netlify status
+                   ./node_modules/.bin/netlify deploy --dir=build --json > deploy.json
+                   # parsing from file
+                   ./node_modules/.bin/node-jq -r '.deploy_url' deploy_output.json
+                '''
             }
         }
         stage('Staging E2E test') {
