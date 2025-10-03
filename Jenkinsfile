@@ -87,8 +87,12 @@ pipeline {
                     ./node_modules/.bin/netlify --version
                     ./node_modules/.bin/netlify status
                    
-                    # Install jq to parse JSON (alpine uses apk)
-                    apk add --no-cache jq >/dev/null
+                    # fetch portable jq (no root required)
+                    mkdir -p .ci-bin
+                    if [ ! -x .ci-bin/jq ]; then
+                        wget -q -O .ci-bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+                        chmod +x .ci-bin/jq
+                    fi
 
                     # do the deploy and capture JSON to a file
                     ./node_modules/.bin/netlify deploy --dir=build  --json > deploy.json
